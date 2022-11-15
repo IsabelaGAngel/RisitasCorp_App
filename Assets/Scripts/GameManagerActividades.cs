@@ -27,15 +27,16 @@ public class GameManagerActividades : MonoBehaviour
     private IPEndPoint _receiveEndPointDataCiclista;
     private IPEndPoint _receiveEndPointDataSabotaje;
     public string _ipDataCiclista = "192.168.100.13"; //IP PC
-    public string _ipDataSabotaje = "192.168.100.5"; //IP Cell2
+    private string _ipDataSabotaje = "127.0.0.1";//IP Cell2
     public int Disponible = 3;
 
-    public int _receivePortData = 3100;
-    public int _sendPortData = 3500;
+    private int _receivePortData = 44444;
+    private int _sendPortData = 3100;
+
     private bool isInitialized;
     private Queue receiveQueue;
 
-    private string _dataReceived;
+    private byte _dataReceived;
 
 
 
@@ -75,7 +76,7 @@ public class GameManagerActividades : MonoBehaviour
         if (PlayerPrefs.GetInt("ValorDisponible") == 3)
         {
             
-            ButtonRestar();
+            BotonRestart.SetActive(true);
 
         }
        
@@ -137,24 +138,28 @@ public class GameManagerActividades : MonoBehaviour
     }
     
 
-    private void sendStringDataCiclista(string message)
+    private void sendStringDataCiclista (byte message)
     {
         try
         {
-            byte[] data = Encoding.UTF8.GetBytes(message);
-            _dataReceiveCiclista.Send(data, data.Length, _receiveEndPointDataCiclista);
+            byte data = message;
+            byte[] dataBytes = new byte[1];
+            dataBytes[0] = data;
+            _dataReceiveCiclista.Send(dataBytes, 1, _receiveEndPointDataCiclista);
         }
         catch (System.Exception err)
         {
             print(err.ToString());
         }
     }
-    private void sendStringDataSabotaje(string message)
+    private void sendStringDataSabotaje (byte message)
     {
         try
         {
-            byte[] data = Encoding.UTF8.GetBytes(message);
-            _dataReceiveSabotaje.Send(data, data.Length, _receiveEndPointDataSabotaje);
+            byte data = message;
+            byte[] dataBytes = new byte[1];
+            dataBytes[0] = data;
+            _dataReceiveSabotaje.Send(dataBytes, 1, _receiveEndPointDataSabotaje);
         }
         catch (System.Exception err)
         {
@@ -164,7 +169,7 @@ public class GameManagerActividades : MonoBehaviour
 
     public void ButtonBailar()
     {
-        sendStringDataSabotaje("Bailar");
+        sendStringDataSabotaje(0x02);
         PlayerPrefs.SetInt("EstadoBotonBailar", 1);
         PlayerPrefs.Save();
         int tmp = PlayerPrefs.GetInt("ValorDisponible") + 1;
@@ -175,7 +180,7 @@ public class GameManagerActividades : MonoBehaviour
     }
     public void ButtonCantar()
     {
-        sendStringDataSabotaje("Cantar");
+        sendStringDataSabotaje(0x03);
         PlayerPrefs.SetInt("EstadoBotonCantar", 1);
         PlayerPrefs.Save();
         int tmp = PlayerPrefs.GetInt("ValorDisponible") + 1;
@@ -187,7 +192,7 @@ public class GameManagerActividades : MonoBehaviour
     }
     public void ButtonGritar()
     {
-        sendStringDataSabotaje("Gritar");
+        sendStringDataSabotaje(0x04);
         PlayerPrefs.SetInt("EstadoBotonGritar", 1);
         PlayerPrefs.Save();
         int tmp = PlayerPrefs.GetInt("ValorDisponible") + 1;
@@ -198,7 +203,7 @@ public class GameManagerActividades : MonoBehaviour
     }
     public void ButtonLagartija()
     {
-        sendStringDataSabotaje("Lagartija");
+        sendStringDataSabotaje(0x05);
         PlayerPrefs.SetInt("EstadoBotonLagartija", 1);
         PlayerPrefs.Save();
         int tmp = PlayerPrefs.GetInt("ValorDisponible") + 1;
@@ -209,7 +214,7 @@ public class GameManagerActividades : MonoBehaviour
     }
     public void ButtonSentadilla()
     {
-        sendStringDataSabotaje("Sentadilla");
+        sendStringDataSabotaje(0x06);
         PlayerPrefs.SetInt("EstadoBotonSentadilla", 1);
         PlayerPrefs.Save();
         int tmp = PlayerPrefs.GetInt("ValorDisponible") + 1;
@@ -220,7 +225,7 @@ public class GameManagerActividades : MonoBehaviour
     }
     public void ButtonTijera()
     {
-        sendStringDataSabotaje("Tijera");
+        sendStringDataSabotaje(0x07);
         PlayerPrefs.SetInt("EstadoBotonTijera", 1);
         PlayerPrefs.Save();
         int tmp = PlayerPrefs.GetInt("ValorDisponible") + 1;
@@ -232,15 +237,15 @@ public class GameManagerActividades : MonoBehaviour
 
     public void MasTiempo() 
     {
-        sendStringDataCiclista("Tiempo");
+        sendStringDataCiclista(0x0A);
     }
     public void MenosTiempo()
     {
-        sendStringDataCiclista("NoTiempo");
+        sendStringDataCiclista(0x0F);
     }
     public void ButtonRestar()
     {
-        BotonRestart.SetActive(true);
+        
         SceneManager.LoadScene("Main");
     }
     IEnumerator Load()
@@ -258,7 +263,7 @@ public class GameManagerActividades : MonoBehaviour
             if (message == null)
                 return;
             Debug.Log("Mensaje de llegada");
-            _dataReceived = Encoding.Default.GetString(message); ;
+            _dataReceived = message[0]; ;
             Debug.Log(_dataReceived);
             MenosTiempo();
         }

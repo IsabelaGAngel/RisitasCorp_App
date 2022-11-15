@@ -8,9 +8,7 @@ using UnityEngine.UI;
 
 public class GameManagerRevisionMain : MonoBehaviour
 {
-    [SerializeField] InputField NombreCiclista;
-    [SerializeField] InputField NombreSaboteador;
-
+    
     private static GameManagerRevisionMain instance;
     //private Thread receiveThread;
     private UdpClient _dataReceiveCiclista;
@@ -18,14 +16,14 @@ public class GameManagerRevisionMain : MonoBehaviour
     private IPEndPoint _receiveEndPointDataCiclista;
     private IPEndPoint _receiveEndPointDataSabotaje;
     public string _ipDataCiclista = "192.168.100.13"; //IP PC
-    public string _ipDataSabotaje = "192.168.100.5"; //IP Cell2
+    private string _ipDataSabotaje = "127.0.0.1";//IP Cell2
+    private int _receivePortData = 44444;
+    private int _sendPortData = 3100;
 
-    public int _receivePortData = 3100;
-    public int _sendPortData = 3500;
     private bool isInitialized;
     private Queue receiveQueue;
 
-    private int _dataReceived;
+    private byte _dataReceived;
 
 
 
@@ -87,24 +85,28 @@ public class GameManagerRevisionMain : MonoBehaviour
         }
     }
 
-    private void sendStringDataCiclista(string message)
+    private void sendStringDataCiclista (byte message)
     {
         try
         {
-            byte[] data = Encoding.UTF8.GetBytes(message);
-            _dataReceiveCiclista.Send(data, data.Length, _receiveEndPointDataCiclista);
+            byte data = message;
+            byte[] dataBytes = new byte[1];
+            dataBytes[0] = data;
+            _dataReceiveCiclista.Send(dataBytes, 1, _receiveEndPointDataCiclista);
         }
         catch (System.Exception err)
         {
             print(err.ToString());
         }
     }
-    private void sendStringDataSabotaje(string message)
+    private void sendStringDataSabotaje (byte message)
     {
         try
         {
-            byte[] data = Encoding.UTF8.GetBytes(message);
-            _dataReceiveSabotaje.Send(data, data.Length, _receiveEndPointDataSabotaje);
+            byte data = message;
+            byte[] dataBytes = new byte[1];
+            dataBytes[0] = data;
+            _dataReceiveSabotaje.Send(dataBytes, 1, _receiveEndPointDataSabotaje);
         }
         catch (System.Exception err)
         {
@@ -114,15 +116,15 @@ public class GameManagerRevisionMain : MonoBehaviour
 
     public void ButtonSi()
     {
-        sendStringDataSabotaje("Si");
+        sendStringDataSabotaje(0x10);
         TryKillThread();
         SceneManager.LoadScene("ActividadesMaster");
         
     }
     public void ButtonNo()
     {
-        sendStringDataCiclista("Tiempo");
-        sendStringDataSabotaje("No");
+        sendStringDataCiclista(0x1A);
+        sendStringDataSabotaje(0x11);
         TryKillThread();
         SceneManager.LoadScene("ActividadesMaster");
         

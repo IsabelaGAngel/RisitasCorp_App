@@ -19,14 +19,15 @@ public class GameManagerSabMain : MonoBehaviour
     private Thread receiveThread;
     private UdpClient _dataReceive;
     private IPEndPoint _receiveEndPointData;
-    public string _ipData = "192.168.100.4";//IP Main
-    
-    public int _receivePortData = 3500;
-    public int _sendPortData = 3100;
+    private string _ipData = "127.0.0.1";
+
+    private int _receivePortData = 3100;
+    private int _sendPortData = 44444;
+
     private bool isInitialized;
     private Queue receiveQueue;
 
-    private string _dataReceived;
+    private byte _dataReceived;
 
     private void Awake()
     {
@@ -86,12 +87,14 @@ public class GameManagerSabMain : MonoBehaviour
         }
     }
 
-    private void sendStringDataCiclista(string message)
+    private void sendStringDataCiclista(byte message)
     {
         try
         {
-            byte[] data = Encoding.UTF8.GetBytes(message);
-            _dataReceive.Send(data, data.Length, _receiveEndPointData);
+            byte data = message;
+            byte[] dataBytes = new byte[1];
+            dataBytes[0] = data;
+            _dataReceive.Send(dataBytes, 1, _receiveEndPointData);
         }
         catch (System.Exception err)
         {
@@ -107,7 +110,7 @@ public class GameManagerSabMain : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (receiveQueue.Count != 0)
+        /*if (receiveQueue.Count != 0)
         {
             byte[] message = (byte[])receiveQueue.Dequeue();
             if (message == null)
@@ -116,6 +119,6 @@ public class GameManagerSabMain : MonoBehaviour
             _dataReceived = Encoding.Default.GetString(message); ;
             Debug.Log(_dataReceived);
             Nombre.text = _dataReceived;
-        }
+        }*/
     }
 }

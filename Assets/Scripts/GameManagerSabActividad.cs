@@ -30,15 +30,15 @@ public class GameManagerSabActividad : MonoBehaviour
     private Thread receiveThread;
     private UdpClient _dataReceiveClient;
     private IPEndPoint _receiveEndPointData;
-    public string _ipData = "127.0.0.1";
+    private string _ipData = "127.0.0.1";
 
-    public int _receivePortData = 3100;
-    public int _sendPortData = 44444;
+    private int _receivePortData = 3100;
+    private int _sendPortData = 44444;
 
     private bool isInitialized;
     private Queue receiveQueue;
 
-    private int _dataReceived;
+    private byte _dataReceived;
 
     private void Awake()
     {
@@ -99,12 +99,14 @@ public class GameManagerSabActividad : MonoBehaviour
         }
     }
 
-    private void sendStringData(string message)
+    private void sendStringData(byte message)
     {
         try
         {
-            byte[] data = Encoding.UTF8.GetBytes(message);
-            _dataReceiveClient.Send(data, data.Length, _receiveEndPointData);
+            byte data = message;
+            byte[] dataBytes = new byte[1];
+            dataBytes[0] = data;
+            _dataReceiveClient.Send(dataBytes, 1, _receiveEndPointData);
         }
         catch (System.Exception err)
         {
@@ -114,8 +116,8 @@ public class GameManagerSabActividad : MonoBehaviour
 
     public void ButtonAccion()
     {
-        
-        sendStringData("1");
+        byte tmpByte = 0x01;
+        sendStringData(tmpByte);
         Uso.SetActive(true);
         Accion1.SetActive(false);
                                          
@@ -135,54 +137,58 @@ public class GameManagerSabActividad : MonoBehaviour
             if (message == null)
                 return;
             Debug.Log("Mensaje de llegada");
-            _dataReceived = Convert.ToInt32(message[0]);
-            Debug.Log(_dataReceived.ToString());
+            _dataReceived = message[0];
+            Debug.Log(_dataReceived);
 
-            if (_dataReceived==2){
-                    CartaBailar.SetActive(true);
-                }
-                else if (_dataReceived==3)
-                {
-                    CartaCantar.SetActive(true);
-                }
-                else if (_dataReceived==4)
-                {
-                    CartaGritar.SetActive(true);
-                }
-                else if (_dataReceived==5)
-                {
-                    CartaLagartija.SetActive(true);
-                }
-                else if (_dataReceived==6)
-                {
-                    CartaSentadilla.SetActive(true);
-                }
-                else if (_dataReceived==7)
-                {
-                    CartaTijera.SetActive(true);
-                }
-                else if (_dataReceived==10)
-                {
-                    CartaBailar.SetActive(false);
-                    CartaCantar.SetActive(false);
-                    CartaGritar.SetActive(false);
-                    CartaLagartija.SetActive(false);
-                    CartaSentadilla.SetActive(false);
-                    CartaTijera.SetActive(false);
-                    Paso.SetActive(true);
-                    Accion1.SetActive(true);
-                }
-                else if (_dataReceived==11)
-                {
-                    CartaBailar.SetActive(false);
-                    CartaCantar.SetActive(false);
-                    CartaGritar.SetActive(false);
-                    CartaLagartija.SetActive(false);
-                    CartaSentadilla.SetActive(false);
-                    CartaTijera.SetActive(false);
-                    NoPaso.SetActive(true);
-                    Accion2.SetActive(true);
-                }
+            if (_dataReceived==0X02){
+                CartaBailar.SetActive(true);
+            }
+            else if (_dataReceived==0X03)
+            {
+                CartaCantar.SetActive(true);
+            }
+            else if (_dataReceived==0X04)
+            {
+                CartaGritar.SetActive(true);
+            }
+            else if (_dataReceived==0X05)
+            {
+                CartaLagartija.SetActive(true);
+            }
+            else if (_dataReceived==0X06)
+            {
+                CartaSentadilla.SetActive(true);
+            }
+            else if (_dataReceived==0X07)
+            {
+                CartaTijera.SetActive(true);
+            }
+            else if (_dataReceived==0X10)
+            {
+                CartaBailar.SetActive(false);
+                CartaCantar.SetActive(false);
+                CartaGritar.SetActive(false);
+                CartaLagartija.SetActive(false);
+                CartaSentadilla.SetActive(false);
+                CartaTijera.SetActive(false);
+                Paso.SetActive(true);
+                Accion1.SetActive(true);
+            }
+            else if (_dataReceived==0X11)
+            {
+                CartaBailar.SetActive(false);
+                CartaCantar.SetActive(false);
+                CartaGritar.SetActive(false);
+                CartaLagartija.SetActive(false);
+                CartaSentadilla.SetActive(false);
+                CartaTijera.SetActive(false);
+                NoPaso.SetActive(true);
+                Accion2.SetActive(true);
+            }
+            else if (_dataReceived==0x12)
+            {
+                Debug.Log("YUjooooooooooooooooo");
+            }
             
         }
     }
